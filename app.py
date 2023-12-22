@@ -18,9 +18,27 @@ class User(db.Model, UserMixin):
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
-
     def validate_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+class TunnelInfo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.String(14), nullable=False)
+    name = db.Column(db.String(20), nullable=False)
+    length = db.Column(db.Integer)
+    province = db.Column(db.String(5))
+    lane = db.Column(db.Integer)
+    year = db.Column(db.String(4))
+    highway = db.Column(db.String(20))
+
+class MaintainInfo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tunnel_name = db.Column(db.String(20), nullable=False)
+    check_program = db.Column(db.String(20), nullable=False)
+    check_time = db.Column(db.DateTime)
+    check_name = db.Column(db.String(20))
+    enter_man = db.Column(db.String(20))
+    conclusion = db.Column(db.String(100))
 
 @login_manager.user_loader
 def load_user(user_id):

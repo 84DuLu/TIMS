@@ -11,6 +11,43 @@ app.config['SECRET_KEY'] = 'dev'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 
+provinces = [
+  '北京市',
+  '天津市',
+  '河北省',
+  '山西省',
+  '内蒙古自治区',
+  '辽宁省',
+  '吉林省',
+  '黑龙江省',
+  '上海市',
+  '江苏省',
+  '浙江省',
+  '安徽省',
+  '福建省',
+  '江西省',
+  '山东省',
+  '河南省',
+  '湖北省',
+  '湖南省',
+  '广东省',
+  '广西壮族自治区',
+  '海南省',
+  '重庆市',
+  '四川省',
+  '贵州省',
+  '云南省',
+  '西藏自治区',
+  '陕西省',
+  '甘肃省',
+  '青海省',
+  '宁夏回族自治区',
+  '新疆维吾尔自治区',
+  '台湾省',
+  '香港特别行政区',
+  '澳门特别行政区'
+];
+
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20))
@@ -26,13 +63,14 @@ class TunnelInfo(db.Model):
     number = db.Column(db.String(14), nullable=False, index=True)
     name = db.Column(db.String(20), nullable=False, index=True)
     length = db.Column(db.Integer)
-    province = db.Column(db.String(5))
+    province = db.Column(db.String(10))
     lane = db.Column(db.Integer)
-    year = db.Column(db.String(4))
+    year = db.Column(db.Integer)
     highway = db.Column(db.String(20))
 
     def to_dict(self):
         return {
+            'id': self.id,
             'number': self.number,
             'name': self.name,
             'length': self.length,
@@ -56,18 +94,18 @@ def forge():
     db.create_all()
 
     maintain_info = [
-    {'number': 'G69U000610000', 'name': '秦岭终南山隧道', 'length': 22110, 'province': '陕西', 
-     'lane': 2, 'year': '2007', 'highway': '银百高速'},
-    {'number': 'G85U000610000', 'name': '秦岭天台山隧道', 'length': 15560, 'province': '陕西', 
-     'lane': 3, 'year': '2021', 'highway': '银昆高速'},
-    {'number': 'G85U000610000', 'name': '米仓山隧道', 'length': 13833, 'province': '陕西', 
-     'lane': 2, 'year': '2018', 'highway': '银昆高速'},
-    {'number': 'G42U000510000', 'name': '二郎山隧道', 'length': 13469, 'province': '四川', 
-     'lane': 2, 'year': '2017', 'highway': '雅叶高速'},
-    {'number': 'G42U000510000', 'name': '狮子坪隧道', 'length': 13156, 'province': '四川', 
-     'lane': 2, 'year': '2020', 'highway': '蓉昌高速'},
-    {'number': 'G04U000140000', 'name': '虹梯关隧道', 'length': 13122, 'province': '山西', 
-     'lane': 2, 'year': '2013', 'highway': '安长高速'}
+    {'number': 'G69U000610000', 'name': '秦岭终南山隧道', 'length': 22110, 'province': '陕西省', 
+     'lane': 2, 'year': 2007, 'highway': '银百高速'},
+    {'number': 'G85U000610000', 'name': '秦岭天台山隧道', 'length': 15560, 'province': '陕西省', 
+     'lane': 3, 'year': 2021, 'highway': '银昆高速'},
+    {'number': 'G85U000610000', 'name': '米仓山隧道', 'length': 13833, 'province': '陕西省', 
+     'lane': 2, 'year': 2018, 'highway': '银昆高速'},
+    {'number': 'G42U000510000', 'name': '二郎山隧道', 'length': 13469, 'province': '四川省', 
+     'lane': 2, 'year': 2017, 'highway': '雅叶高速'},
+    {'number': 'G42U000510000', 'name': '狮子坪隧道', 'length': 13156, 'province': '四川省', 
+     'lane': 2, 'year': 2020, 'highway': '蓉昌高速'},
+    {'number': 'G04U000140000', 'name': '虹梯关隧道', 'length': 13122, 'province': '山西省', 
+     'lane': 2, 'year': 2013, 'highway': '安长高速'}
     ]
 
     for info in maintain_info:
@@ -110,6 +148,57 @@ def index():
 @app.route('/api/data')
 def data():
     return {'data': [info.to_dict() for info in TunnelInfo.query]}
+
+@app.route('/tunnel/add', methods=['GET', 'POST'])
+def add():
+    if request.method == 'POST':
+        number = request.form['number']
+        name = request.form['name']
+        length = request.form['length']
+        province = request.form['province']
+        lane = request.form['lane']
+        year = request.form['year']
+        highway = request.form['highway']
+
+        tunnel = TunnelInfo(number=number, name=name, length=length, province=province, 
+                            lane=lane, year=year, highway=highway)
+        db.session.add(tunnel)
+        db.session.commit()
+        return redirect(url_for('index'))
+    
+    return render_template('add.html', provinces=provinces)
+
+@app.route('/tunnel/edit/<int:tunnel_id>', methods=['GET', 'POST'])
+def edit(tunnel_id):
+    tunnel = TunnelInfo.query.get_or_404(tunnel_id)
+
+    if request.method == 'POST':
+        number = request.form['number']
+        name = request.form['name']
+        length = request.form['length']
+        province = request.form['province']
+        lane = request.form['lane']
+        year = request.form['year']
+        highway = request.form['highway']
+
+        tunnel.number = number
+        tunnel.name = name
+        tunnel.length = length
+        tunnel.province = province
+        tunnel.lane = lane
+        tunnel.year = year
+        tunnel.highway = highway
+        db.session.commit()
+        return redirect(url_for('index')) 
+
+    return render_template('edit.html', provinces=provinces, tunnel=tunnel)
+
+@app.route('/tunnel/delete/<int:tunnel_id>', methods=['POST'])
+def delete(tunnel_id):
+    tunnel = TunnelInfo.query.get_or_404(tunnel_id)
+    db.session.delete(tunnel)
+    db.session.commit()
+    return redirect(url_for('index'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

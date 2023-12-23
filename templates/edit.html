@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隧道信息管理系统</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='edit.css') }}">
+</head>
+<body>
+    <img src="{{ url_for('static', filename='images/tunnel.png') }}" alt="tunnel">
+    <form method="post" class="edit-form">
+        <div class="mb-3">
+            <label for="number" class="form-label">编号</label>
+            <input type="text" class="form-control" name="number" id="number" required autocomplete="off" maxlength="14"  value="{{ tunnel.number }}">
+        </div>
+        <div class="mb-3">
+            <label for="name" class="form-label">名称</label>
+            <input type="text" class="form-control" name="name" id="name" required autocomplete="off" maxlength="20" value="{{ tunnel.name }}">
+        </div>
+        <div class="mb-3">
+            <label for="length" class="form-label">长度</label>
+            <input type="number" class="form-control" name="length" id="length" required autocomplete="off" min="0" max="100000000" value="{{ tunnel.length }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">省份</label>
+            <select class="form-select" name="province" aria-label="Default select example">
+                <option selected value="{{ tunnel.province }}">{{ tunnel.province }}</option>
+                {% for province in provinces %}
+                <option value="{{ province }}">{{ province }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="lane" class="form-label">车道数</label>
+            <input type="number" class="form-control" name="lane" id="lane" required autocomplete="off" min="0" max="10"  value="{{ tunnel.lane }}">
+        </div>
+        <div class="mb-3">
+            <label for="year" class="form-label">开通年份</label>
+            <input type="number" class="form-control" name="year" id="year" required autocomplete="off"  min="1000" max="9999" value="{{ tunnel.year }}">
+        </div>
+        <div class="mb-3">
+            <label for="highway" class="form-label">公路</label>
+            <input type="text" class="form-control" name="highway" id="highway" required autocomplete="off" maxlength="20"  value="{{ tunnel.highway }}">
+        </div>
+        <button type="submit" class="btn btn-primary">提交</button>
+        <a class="btn btn-secondary" href="/" role="button">返回</a>
+    </form>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+</html>

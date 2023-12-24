@@ -12,6 +12,12 @@
 </head>
 
 <body>
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
     <img src="{{ url_for('static', filename='images/tunnel.png') }}" alt="tunnel">
     <form method="post" class="edit-form">
         <div class="mb-3">

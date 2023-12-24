@@ -1,6 +1,6 @@
 from flask import Flask, url_for, render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import click
 
@@ -10,6 +10,8 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://snowy:Snowy_77@localhost/tims"
 app.config['SECRET_KEY'] = 'dev'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+login_manager.login_message = "请登录后访问此页面"
 
 provinces = [
   '北京市',
@@ -163,11 +165,13 @@ def signup(username, password):
 
 
 @app.route('/')
-@app.route('/index')
 def index():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
     return render_template('index.html')
 
 @app.route('/maintain')
+@login_required
 def maintain():
     return render_template('maintain.html')
 
@@ -180,15 +184,20 @@ def data2():
     return {'data': [info.to_dict() for info in MaintainInfo.query]}
 
 @app.route('/tunnel/add', methods=['GET', 'POST'])
+@login_required
 def add():
     if request.method == 'POST':
-        number = request.form['number']
-        name = request.form['name']
+        number = request.form['number'].replace(" ", "")
+        name = request.form['name'].replace(" ", "")
         length = request.form['length']
         province = request.form['province']
         lane = request.form['lane']
         year = request.form['year']
-        highway = request.form['highway']
+        highway = request.form['highway'].replace(" ", "")
+
+        if TunnelInfo.query.filter_by(number=number).first() or TunnelInfo.query.filter_by(name=name).first():
+            flash('隧道已存在！')
+            return redirect(url_for('add'))
 
         tunnel = TunnelInfo(number=number, name=name, length=length, province=province, 
                             lane=lane, year=year, highway=highway)
@@ -199,13 +208,14 @@ def add():
     return render_template('add.html', provinces=provinces)
 
 @app.route('/maintain/add', methods=['GET', 'POST'])
+@login_required
 def maintain_add():
     if request.method == 'POST':
-        tunnel_name = request.form['tunnel_name']
-        check_program = request.form['check_program']
-        check_time = request.form['check_time']
-        check_name = request.form['check_name']
-        enter_man = request.form['enter_man']
+        tunnel_name = request.form['tunnel_name'].replace(" ", "")
+        check_program = request.form['check_program'].replace(" ", "")
+        check_time = request.form['check_time'].replace(" ", "")
+        check_name = request.form['check_name'].replace(" ", "")
+        enter_man = request.form['enter_man'].replace(" ", "")
         conclusion = request.form['conclusion']
 
         maintain = MaintainInfo(tunnel_name=tunnel_name, check_program=check_program, check_time=check_time,
@@ -216,17 +226,18 @@ def maintain_add():
     return render_template('maintain_add.html')
 
 @app.route('/tunnel/edit/<int:tunnel_id>', methods=['GET', 'POST'])
+@login_required
 def edit(tunnel_id):
     tunnel = TunnelInfo.query.get_or_404(tunnel_id)
 
     if request.method == 'POST':
-        number = request.form['number']
-        name = request.form['name']
+        number = request.form['number'].replace(" ", "")
+        name = request.form['name'].replace(" ", "")
         length = request.form['length']
         province = request.form['province']
         lane = request.form['lane']
         year = request.form['year']
-        highway = request.form['highway']
+        highway = request.form['highway'].replace(" ", "")
 
         tunnel.number = number
         tunnel.name = name
@@ -241,15 +252,16 @@ def edit(tunnel_id):
     return render_template('edit.html', provinces=provinces, tunnel=tunnel)
 
 @app.route('/maintain/edit/<int:maintain_id>', methods=['GET', 'POST'])
+@login_required
 def maintain_edit(maintain_id):
     maintain = MaintainInfo.query.get_or_404(maintain_id)
 
     if request.method == 'POST':
-        tunnel_name = request.form['tunnel_name']
-        check_program = request.form['check_program']
-        check_time = request.form['check_time']
-        check_name = request.form['check_name']
-        enter_man = request.form['enter_man']
+        tunnel_name = request.form['tunnel_name'].replace(" ", "")
+        check_program = request.form['check_program'].replace(" ", "")
+        check_time = request.form['check_time'].replace(" ", "")
+        check_name = request.form['check_name'].replace(" ", "")
+        enter_man = request.form['enter_man'].replace(" ", "")
         conclusion = request.form['conclusion']
 
         maintain.tunnel_name = tunnel_name
@@ -264,6 +276,7 @@ def maintain_edit(maintain_id):
     return render_template('maintain_edit.html', maintain=maintain)
 
 @app.route('/tunnel/delete/<int:tunnel_id>', methods=['POST'])
+@login_required
 def delete(tunnel_id):
     tunnel = TunnelInfo.query.get_or_404(tunnel_id)
     db.session.delete(tunnel)
@@ -271,6 +284,7 @@ def delete(tunnel_id):
     return redirect(url_for('index'))
 
 @app.route('/maintain/delete/<int:maintain_id>', methods=['POST'])
+@login_required
 def maintain_delete(maintain_id):
     maintain = MaintainInfo.query.get_or_404(maintain_id)
     db.session.delete(maintain)
@@ -293,3 +307,9 @@ def login():
         return redirect(url_for('login'))
 
     return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))

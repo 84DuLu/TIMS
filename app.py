@@ -218,6 +218,10 @@ def maintain_add():
         enter_man = request.form['enter_man'].replace(" ", "")
         conclusion = request.form['conclusion']
 
+        if not TunnelInfo.query.filter_by(name=tunnel_name).first():
+            flash('隧道不存在，请检查隧道信息！')
+            return redirect(url_for('maintain_add'))
+
         maintain = MaintainInfo(tunnel_name=tunnel_name, check_program=check_program, check_time=check_time,
                                 check_name=check_name, enter_man=enter_man, conclusion=conclusion)
         db.session.add(maintain)
@@ -263,6 +267,10 @@ def maintain_edit(maintain_id):
         check_name = request.form['check_name'].replace(" ", "")
         enter_man = request.form['enter_man'].replace(" ", "")
         conclusion = request.form['conclusion']
+
+        if not TunnelInfo.query.filter_by(name=tunnel_name).first():
+            flash('隧道不存在，请检查隧道信息！')
+            return redirect(url_for('maintain_edit', maintain_id=maintain_id))
 
         maintain.tunnel_name = tunnel_name
         maintain.check_program = check_program

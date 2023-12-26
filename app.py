@@ -2,6 +2,9 @@ from flask import Flask, url_for, render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from markupsafe import Markup
+from pyecharts.charts import Map
+from pyecharts import options as opts
 import click
 
 app = Flask(__name__)
@@ -342,8 +345,42 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/map')
+@login_required
+def map():
+    length_values = []
+    for province in provinces:
+        length_value = sum([tunnel.length for tunnel in TunnelInfo.query.filter_by(province=province).all()])
+        length_values.append(length_value)
+    data = list(zip(provinces, length_values))
+    map_ = Map(init_opts=opts.InitOpts(width='1200px', height='900px'))
+    map_.add(
+        series_name = '公路隧道里程',
+        data_pair = data,
+        maptype = 'china',
+        zoom = 1
+    )
+    map_.set_global_opts(
+        title_opts = opts.TitleOpts(
+            title = '公路隧道里程统计(米)',
+            pos_right = 'center',
+            pos_top = '5%'
+        ),
+        visualmap_opts = opts.VisualMapOpts(
+            max_ = max(length_values),
+            min_ = min(length_values),
+            range_color = ['#E6DADA', '#274046']
+        )
+    )
+    data_plot = Markup(map_.render_embed())
+    return render_template('map.html', data_plot=data_plot)
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return redirect('https://ys.mihoyo.com/main/')

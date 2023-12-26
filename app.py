@@ -299,6 +299,32 @@ def maintain_delete(maintain_id):
     db.session.commit()
     return redirect(url_for('maintain'))
 
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    if request.method == 'POST':
+        username = request.form['username'].replace(" ", "")
+        password = request.form['password']
+        password_confirmation = request.form['password_confirmation']
+
+        if current_user.username != username:
+            if User.query.filter_by(username=username).first():
+                flash('用户名重复！')
+                return redirect(url_for('settings'))
+        
+        if password != password_confirmation:
+            flash('两次输入密码不一致！')
+            return redirect(url_for('settings'))
+        
+        current_user.username = username
+        current_user.set_password(password)
+
+        db.session.commit()
+        flash('修改成功！')
+        return redirect(url_for('settings'))
+
+    return render_template('settings.html')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':

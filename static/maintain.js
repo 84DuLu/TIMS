@@ -1,8 +1,8 @@
 new gridjs.Grid({
     columns: [
         {id: 'id', hidden: true},
-        {id: 'tunnel_name', name: '隧道名称'},
-        {id: 'check_program', name: '检查项目'},
+        {id: 'tunnel_name', name: '隧道名称', sort: false},
+        {id: 'check_program', name: '检查项目', sort: false},
         {id: 'check_time', name: '检查时间'},
         {id: 'check_name', name: '检查公司', sort: false},
         {id: 'enter_man', name: '录入人员', sort: false},

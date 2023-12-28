@@ -2,7 +2,15 @@ new gridjs.Grid({
     columns: [
         {id: 'id', hidden: true},
         {id: 'number', name: '编号'},
-        {id: 'name', name: '名称'},
+        {
+            id: 'name',
+            name: '名称',
+            sort: {
+                compare: (a, b) => {
+                    return a.localeCompare(b, 'zh-Hans-CN');
+                }
+            }
+        },
         {id: 'length', name: '长度'},
         {id: 'province', name: '省份', sort: false},
         {id: 'lane', name: '车道数', sort: false},

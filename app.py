@@ -132,7 +132,15 @@ def forge():
 
     maintain_info = [
         {'tunnel_name': '秦岭终南山隧道', 'check_program': '洞口', 'check_time': '2017-06-01T08:30',
-         'check_name': '长安大学', 'enter_man': '王二', 'conclusion': '洞口边仰坡稳定、无落石'}
+         'check_name': '长安大学', 'enter_man': '王二', 'conclusion': '洞口边仰坡稳定、无落石'},
+        {'tunnel_name': '秦岭终南山隧道', 'check_program': '路面', 'check_time': '2018-12-10T18:30',
+         'check_name': '长安大学', 'enter_man': '王二', 'conclusion': '无散落物、严重隆起、错台、断裂等现象'},
+        {'tunnel_name': '米仓山隧道', 'check_program': '洞门', 'check_time': '2019-01-07T15:10',
+         'check_name': '长安大学', 'enter_man': '王二', 'conclusion': '存在渗漏水或结冰，尚未妨碍交通'},
+        {'tunnel_name': '二郎山隧道', 'check_program': '排水系统', 'check_time': '2019-01-08T16:40',
+         'check_name': '长安大学', 'enter_man': '王二', 'conclusion': '存在缺损、积水或结冰，尚未妨碍交通'},
+        {'tunnel_name': '狮子坪隧道', 'check_program': '内装饰', 'check_time': '2021-05-08T16:40',
+         'check_name': '长安大学', 'enter_man': '王二', 'conclusion': '缺损严重，已妨碍交通'}
     ]
 
     for info in maintain_info:
